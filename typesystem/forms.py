@@ -97,10 +97,10 @@ class Form:
         return "forms/input.html"
 
     def input_type_for_field(self, field: Field) -> str:
-        format = getattr(field, "format", None)
-        if not format:
+        fld_format = getattr(field, "format", None)
+        if not fld_format:
             return "text"
-        return self.FORMAT_TO_INPUTTYPE.get(format, "text")
+        return self.FORMAT_TO_INPUTTYPE.get(fld_format, "text")
 
     def __str__(self) -> str:
         return self.render_fields()

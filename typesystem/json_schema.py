@@ -215,7 +215,7 @@ def from_json_schema_type(
         }
         return Float(**kwargs)
 
-    elif type_string == "integer":
+    if type_string == "integer":
         kwargs = {
             "allow_null": allow_null,
             "minimum": data.get("minimum", None),
@@ -227,7 +227,7 @@ def from_json_schema_type(
         }
         return Integer(**kwargs)
 
-    elif type_string == "string":
+    if type_string == "string":
         min_length = data.get("minLength", 0)
         kwargs = {
             "allow_null": allow_null,
@@ -240,11 +240,11 @@ def from_json_schema_type(
         }
         return String(**kwargs)
 
-    elif type_string == "boolean":
+    if type_string == "boolean":
         kwargs = {"allow_null": allow_null, "default": data.get("default", NO_DEFAULT)}
         return Boolean(**kwargs)
 
-    elif type_string == "array":
+    if type_string == "array":
         items = data.get("items", None)
         if items is None:
             items_argument: typing.Union[None, Field, typing.List[Field]] = None
@@ -276,7 +276,7 @@ def from_json_schema_type(
         }
         return Array(**kwargs)
 
-    elif type_string == "object":
+    if type_string == "object":
         properties = data.get("properties", None)
         if properties is None:
             properties_argument: typing.Optional[typing.Dict[str, Field]] = None
