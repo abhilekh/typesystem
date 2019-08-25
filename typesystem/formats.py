@@ -2,6 +2,8 @@ import datetime
 import re
 import typing
 import uuid
+import urllib
+
 
 from typesystem.base import ValidationError
 
@@ -21,6 +23,18 @@ DATETIME_REGEX = re.compile(
 
 UUID_REGEX = re.compile(
     r"[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+)
+
+# Most common extensions are copied from https://www.lifewire.com/most-common-tlds-internet-domain-extensions-817511
+TOP_DOMAINS = "com|org|net|us|co|int|mil|edu|gov|biz|info|jobs|mobi|name|ly|tel|kitchen|email|tech|estate|xyz|codes|bargains|bid|expert|ca|cn|fr|ch|au|in|de|jp|nl|uk|mx|no|ru|br|se|es|us"
+
+# F-string forces us to use 3.6+ python
+URL_REGEX = re.compile(
+    rf"\b(http[s]?://)?([^:\s]+)(\.\w+)*\.({TOP_DOMAINS})(/[\w\-.]+[^#?\s]+)*/?\b"
+)
+
+EMAIL_REGEX = re.compile(
+    r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
 )
 
 
@@ -169,3 +183,45 @@ class UUIDFormat(BaseFormat):
 
     def serialize(self, obj: typing.Any) -> str:
         return str(obj)
+
+
+class URLFormat(BaseFormat):
+    errors = {"format": "Must be valid URL format."}
+
+    def is_native_type(self, value: typing.Any) -> bool:
+        return isinstance(value, urllib.parse.ParseResult)
+
+    def validate(self, value: typing.Any) -> urllib.parse.ParseResult:
+        match = URL_REGEX.match(value)
+        if not match:
+            raise self.validation_error("format")
+
+        # I know it is URL, lets check if it starts with http
+        if not value.startswith("http"):
+            value = "http://" + value
+        return urllib.parse.urlparse(value)
+
+    def serialize(self, obj: typing.Any) -> str:
+        if obj is None:
+            return None
+
+        assert isinstance(obj, urllib.parse.ParseResult)
+
+        return obj.geturl()
+
+
+class EmailFormat(BaseFormat):
+    errors = {"format": "Must be valid Email format."}
+
+    def is_native_type(self, value: typing.Any) -> bool:
+        return isinstance(value, urllib.parse.ParseResult)
+
+    def validate(self, value: typing.Any) -> urllib.parse.ParseResult:
+        match = EMAIL_REGEX.match(value)
+        if not match:
+            raise self.validation_error("format")
+
+        return value
+
+    def serialize(self, obj: typing.Any) -> str:
+        return obj

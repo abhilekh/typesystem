@@ -1,6 +1,7 @@
 import datetime
 import decimal
 import re
+import urllib
 import uuid
 
 from typesystem.base import Message, ValidationError
@@ -12,6 +13,7 @@ from typesystem.fields import (
     Date,
     DateTime,
     Decimal,
+    Email,
     Float,
     Integer,
     Number,
@@ -19,6 +21,7 @@ from typesystem.fields import (
     String,
     Time,
     Union,
+    URL,
 )
 
 
@@ -722,6 +725,39 @@ def test_uuid():
     validator = String(format="uuid")
     value, error = validator.validate_or_error("1245a678-1234-1234-1234-123412341234")
     assert error == ValidationError(text="Must be valid UUID format.", code="format")
+
+
+def test_email():
+    validator = String(format="email")
+    for item in ["info@python.org", "python@python.org", "python.user@python.org", "42user@python.org", "a@b.c",
+                 "info.1@python.org", "info.1_2@python.org", "info.1_2@python007.org"]:
+        value, error = validator.validate_or_error(item)
+        assert value == item
+
+    validator = String(format="email")
+    for item in ["info@python", "python@python", "python@user@python.org", "@python.org"]:
+        value, error = validator.validate_or_error(item)
+        assert error == ValidationError(text="Must be valid Email format.", code="format")
+
+
+def test_url():
+    validator = String(format="url")
+    for item in ["http://www.python.org", "https://www.python.org", "http://www.python007.org", "http://42.com",
+                 "http://python.org", "http://python.org/intro", "https://python.org/intro/firstlesson/",
+                 "http://www.google.com"]:
+        value, error = validator.validate_or_error(item)
+        assert value == urllib.parse.urlparse(item)
+
+    validator = String(format="url")
+    for item in ["www.python.org", "www.python42.org", "42.com", "python.org"
+                 "inside.python.org", "python.org/intro", "python.org/intro/firstlesson/"]:
+        value, error = validator.validate_or_error(item)
+        assert value == urllib.parse.urlparse("http://" + item)
+
+    validator = String(format="url")
+    for item in ["python@sas", "pythonv7", ".com"]:
+        value, error = validator.validate_or_error(item)
+        assert error == ValidationError(text="Must be valid URL format.", code="format")
 
 
 def test_union():
