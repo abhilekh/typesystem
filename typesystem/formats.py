@@ -2,12 +2,14 @@ import datetime
 import re
 import typing
 import uuid
-import urllib
+import urllib.parse
 
 
 from typesystem.base import ValidationError
 
-DATE_REGEX = re.compile(r"(?P<year>\d{4})-(?P<month>\d{1,2})-(?P<day>\d{1,2})$")
+DATE_REGEX = re.compile(
+    r"(?P<year>\d{4})-(?P<month>\d{1,2})-(?P<day>\d{1,2})$"
+)
 
 TIME_REGEX = re.compile(
     r"(?P<hour>\d{1,2}):(?P<minute>\d{1,2})"
@@ -25,10 +27,13 @@ UUID_REGEX = re.compile(
     r"[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
 )
 
-# Most common extensions are copied from https://www.lifewire.com/most-common-tlds-internet-domain-extensions-817511
-TOP_DOMAINS = "com|org|net|us|co|int|mil|edu|gov|biz|info|jobs|mobi|name|ly|tel|kitchen|email|tech|estate|xyz|codes|bargains|bid|expert|ca|cn|fr|ch|au|in|de|jp|nl|uk|mx|no|ru|br|se|es|us"
+#  Most common extensions are copied from
+#  https://www.lifewire.com/most-common-tlds-internet-domain-extensions-817511
+TOP_DOMAINS = "com|org|net|us|co|int|mil|edu|gov|biz|info|jobs|mobi|name" + \
+    "|ly|tel|kitchen|email|tech|estate|xyz|codes|bargains|bid|expert|ca" + \
+    "|cn|fr|ch|au|in|de|jp|nl|uk|mx|no|ru|br|se|es|us"
 
-# F-string forces us to use 3.6+ python
+#  F-string forces us to use 3.6+ python
 URL_REGEX = re.compile(
     rf"\b(http[s]?://)?([^:\s]+)(\.\w+)*\.({TOP_DOMAINS})(/[\w\-.]+[^#?\s]+)*/?\b"
 )

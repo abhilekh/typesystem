@@ -7,6 +7,7 @@ from typesystem.fields import (
     Date,
     DateTime,
     Decimal,
+    Email,
     Field,
     Float,
     Integer,
@@ -16,6 +17,7 @@ from typesystem.fields import (
     Text,
     Time,
     Union,
+    URL
 )
 from typesystem.forms import Jinja2Forms
 from typesystem.json_schema import from_json_schema, to_json_schema
